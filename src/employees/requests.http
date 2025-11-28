@@ -1,0 +1,45 @@
+### Create Department
+POST http://localhost:3000/departments
+content-type: application/json
+
+{
+    "departmentName": "소싱팀",
+    "departmentCode": "S1"
+}
+
+### Create Department
+POST http://localhost:3000/departments
+content-type: application/json
+
+{
+    "departmentName": "생산팀",
+    "departmentCode": "P1"
+}
+
+
+### Create Employee
+POST http://localhost:3000/employees
+content-type: application/json
+
+{   
+    "employeeName": "신홍석",
+    "dateOfBirth": "19951108",
+    "email": "tls1641@gmail.com",
+    "password": "774977",
+    "departmentId": 1
+}
+
+### Create Employee
+POST http://localhost:3000/employees
+content-type: application/json
+
+{   
+    "employeeName": "홍길동",
+    "dateOfBirth": "19951108",
+    "email": "tls1642@gmail.com",
+    "password": "774977",
+    "departmentId": 2
+}
+
+### Remove Employee
+DELETE http://localhost:3000/employees/fe5243f9-c725-47eb-bd7e-2b4919f691da	

@@ -1,0 +1,41 @@
+
+### Create a new order
+POST http://localhost:3000/orders
+content-type: application/json
+
+{
+    "buyerId": "d694e14f-385b-47ec-b66c-62c9b3aca02f",
+    "orderDetail": {
+        "productName": "양말",
+        "quantity": 1000,
+        "unitPrice": 10000,
+        "color": "white",
+        "size": "xl",
+        "dueDate": "20251128"
+    }
+}
+
+
+### Update order
+PATCH http://localhost:3000/orders/0c99f1e3-a6fb-44e5-825a-197fba57aaa6
+content-type: application/json
+
+{
+    "buyerId": "d694e14f-385b-47ec-b66c-62c9b3aca02f",
+    "orderDetail": {
+        "quantity": 15000
+    }
+}
+
+
+### Confirm Order
+POST http://localhost:3000/orders/0c99f1e3-a6fb-44e5-825a-197fba57aaa6/confirm
+content-type: application/json
+
+{
+    "employeeId": "a823569d-db7f-4fcf-80d8-aa4cc25c8c2a"
+}
+
+
+###
+GET http://localhost:3000/orders/0c99f1e3-a6fb-44e5-825a-197fba57aaa6

@@ -1,0 +1,15 @@
+
+
+### Create a new buyer
+POST http://localhost:3000/buyers
+content-type: application/json
+
+{
+    "buyerName": "디자이너",
+    "dateOfBirth": "19951108",
+    "phone": "01020311883",
+    "email": "design@gmail.com"
+}
+
+### Get buyer with email
+GET http://localhost:3000/buyers?email=design@gmail.com
