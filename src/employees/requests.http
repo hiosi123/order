@@ -25,7 +25,7 @@ content-type: application/json
     "employeeName": "신홍석",
     "dateOfBirth": "19951108",
     "email": "tls1641@gmail.com",
-    "password": "774977",
+    "password": "qwer1234@",
     "departmentId": 1
 }
 
@@ -37,7 +37,7 @@ content-type: application/json
     "employeeName": "홍길동",
     "dateOfBirth": "19951108",
     "email": "tls1642@gmail.com",
-    "password": "774977",
+    "password": "qwer1234@",
     "departmentId": 2
 }
 

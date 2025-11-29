@@ -50,4 +50,11 @@ export class BuyersService {
 
         return this.repo.remove(buyer)
     }
+
+    async findByEmailWithPassword(email: string) {
+        return this.repo.findOne({
+            where: { email },
+            select: ['buyerId', 'buyerName', 'email', 'password', 'dateOfBirth', 'phone'],
+        });
+    }
 }

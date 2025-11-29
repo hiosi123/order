@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Order } from './entities/order.entity';
-import { Repository } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { CreateOrderDto } from './dtos/create-order.dto';
 import { BuyersService } from 'src/buyers/buyers.service';
 import { OrderDetailsService } from './orderDetails.service';
@@ -9,6 +9,7 @@ import { UpdateOrderDto } from './dtos/update-order.dto';
 import { OrderDetail } from './entities/orderDetail.entity';
 import { ConfirmOrderDto } from './dtos/confirm-order.dto';
 import { EmployeesService } from 'src/employees/employees.service';
+
 
 // orders.service.ts
 interface HistoryQuery {
@@ -24,27 +25,32 @@ export class OrdersService {
     
     constructor(
         @InjectRepository(Order) private repo: Repository<Order>,
+        private dataSource: DataSource,
         private buyersService: BuyersService, 
         private employeesService: EmployeesService,
         private orderDetailsService: OrderDetailsService
     ){}
 
     async create(orderDto: CreateOrderDto) {
-
-        const buyer = await this.buyersService.findOne(orderDto.buyerId)
+        const buyer = await this.buyersService.findOne(orderDto.buyerId);
         if (!buyer) {
-            throw new NotFoundException('Buyer not found')
+            throw new NotFoundException('Buyer not found');
         }
 
-        // Order 먼저 생성
-        const order = this.repo.create()
-        order.buyer = buyer
-        const savedOrder = await this.repo.save(order)
+        return await this.dataSource.transaction(async (manager) => {
+            // Order 생성
+            const order = manager.create(Order, { buyer });
+            const savedOrder = await manager.save(order);
 
-        // OrderDetail 생성 및 저장
-        await this.orderDetailsService.create(orderDto.orderDetail, order)
+            // OrderDetail 생성 (트랜잭션 매니저 전달)
+            await this.orderDetailsService.createWithManager(
+                orderDto.orderDetail, 
+                savedOrder, 
+                manager
+            );
 
-        return savedOrder
+            return savedOrder;
+        });
     }
 
     async update(orderId: string, orderDto: Partial<Order>) {
@@ -89,27 +95,36 @@ export class OrdersService {
         }
 
         // 4. 주문서 분류
-        const latestOrder = order.orderDetails.sort((a,b) => b.createdAt.getTime() - a.createdAt.getTime())
+        const latestOrder = order.orderDetails.sort((a,b) => b.orderDetailId - a.orderDetailId)
         if (!latestOrder.length) {
             throw new NotFoundException('Order not found')
         }
 
 
-        if (latestOrder[0].status > 3) {
+        if (latestOrder[0].status < 3) {
             throw new NotFoundException('Previous request is not in confirm state')
         }
 
-        // 5. 오더 디테일 상태 업데이트
-        const confirmedOrderDetail = latestOrder[0]
-        Object.assign(confirmedOrderDetail, orderDto.orderDetail)
-        confirmedOrderDetail.status = 2
-        confirmedOrderDetail.createdAt = new Date()
+        // 트랜잭션 시작
+        return await this.dataSource.transaction(async (manager) => {
 
-        // 6. 오더 상태 업데이트
-        order.orderStatus = 2
-        await this.update(order.orderId, order)
+            // 5. 새로운 OrderDetail 생성 (기존 객체 수정하지 않음)
+            const newOrderDetail = {
+                ...latestOrder[0],
+                ...orderDto.orderDetail,
+                status: 2,
+            };
 
-        return this.orderDetailsService.create(confirmedOrderDetail, order)
+            // 6. Order 상태 업데이트
+            await manager.update(Order, { orderId }, { orderStatus: 2 });
+
+            // 7. 새 OrderDetail 저장
+            return await this.orderDetailsService.createWithManager(
+                newOrderDetail,
+                order,
+                manager
+            );
+        });
     }
 
     async conifrmByEmployee(orderId: string, confirmDto: ConfirmOrderDto) {
@@ -124,7 +139,7 @@ export class OrdersService {
         }
 
         // 2. pending 오더 확인        
-        const latestOrder = order.orderDetails.sort((a,b) => b.createdAt.getTime() - a.createdAt.getTime())
+        const latestOrder = order.orderDetails.sort((a,b) => b.orderDetailId - a.orderDetailId)
         if (!latestOrder.length) {
             throw new NotFoundException('Order not found')
         }
@@ -145,17 +160,25 @@ export class OrdersService {
             throw new BadRequestException("Department is not sourcing team")
         }
 
-        // 5. 오더 디테일 상태 업데이트
-        const orderDetail = latestOrder[0]
-        orderDetail.status = 3
-        orderDetail.employee = employee
-        orderDetail.createdAt = new Date()
+        // 트랜잭션 시작
+        return await this.dataSource.transaction(async (manager) => {
+            // 5. 새로운 OrderDetail 생성
+            const newOrderDetail = {
+                ...latestOrder[0],
+                status: 3,
+                employee: employee,
+            };
 
-        // 6. 오더 상태 업데이트
-        order.orderStatus = 3
-        await this.update(order.orderId, order)
+            // 6. Order 상태 업데이트
+            await manager.update(Order, { orderId }, { orderStatus: 3 });
 
-        return this.orderDetailsService.create(orderDetail, order)
+            // 7. 새 OrderDetail 저장
+            return await this.orderDetailsService.createWithManager(
+                newOrderDetail,
+                order,
+                manager
+            );
+        });
     }
 
     async rejectByEmployee(orderId: string, confirmDto: ConfirmOrderDto) {
@@ -169,7 +192,7 @@ export class OrdersService {
         }
 
         // 2. pending order 확인
-        const latestOrder = order.orderDetails.sort((a,b) => b.createdAt.getTime() - a.createdAt.getTime())
+        const latestOrder = order.orderDetails.sort((a,b) => b.orderDetailId - a.orderDetailId)
         if (!latestOrder.length) {
             throw new NotFoundException('Order not found')
         }
@@ -189,14 +212,22 @@ export class OrdersService {
             throw new BadRequestException("Department is not sourcing team")
         }
 
-        // 5. 오더 디테일 상태 업데이트
-        const orderDetail = latestOrder[0]
-        orderDetail.status = 9
-        orderDetail.employee = employee
-        orderDetail.createdAt = new Date()
-        
+        // 트랜잭션 시작
+        return await this.dataSource.transaction(async (manager) => {
+            // 5. 새로운 OrderDetail 생성 (거부 상태)
+            const newOrderDetail = {
+                ...latestOrder[0],
+                status: 9,
+                employee: employee,
+            };
 
-        return this.orderDetailsService.create(orderDetail, order)
+            // 6. 새 OrderDetail 저장 (Order 상태는 변경하지 않음)
+            return await this.orderDetailsService.createWithManager(
+                newOrderDetail,
+                order,
+                manager
+            );
+        });
     }
 
     
@@ -210,19 +241,136 @@ export class OrdersService {
             throw new NotFoundException('Order not found')
         }
 
+
         // 2. 오더 시간순 정렬
-        const sortedDetails = order.orderDetails.sort((a,b) => a.createdAt.getTime() - b.createdAt.getTime()).filter((e) => e.status === 3)
+        const sortedDetails = order.orderDetails.sort((a,b) => a.orderDetailId - b.orderDetailId).filter((e) => e.status === 3)
 
-        // 3. 쿼리 타입에 따라 분기
-
-        // 3-1.버전간 비교 (status가 3인것만 보기)
+        // 3. 쿼리 타입에 따라 분기 (status가 3인것만 보기)
+        const confiremdDetails = sortedDetails.filter((e) => e.status === 3) 
+        console.log(confiremdDetails)
+        // 3-1.버전간 비교 
         if (query.fromVersion !== undefined && query.toVersion !== undefined) {
-            return this.compareVersion(sortedDetails, query.fromVersion, query.toVersion)
+            return this.compareVersions(confiremdDetails, query.fromVersion, query.toVersion)
+        }
+        // 3-2.특정 버전 조회
+        if (query.version !== undefined) {
+            return this.getVersionDetail(confiremdDetails, query.version)
+        }
+        // 3-3.특정 시점 조회
+        if (query.timestamp) {
+            return this.getDetailAtTimestamp(sortedDetails, query.timestamp)
         }
 
-        return order
+        return {
+            orderId: order.orderId,
+            buyer: order.buyer,
+            currentStatus: order.orderStatus,
+            totalVersions: confiremdDetails.length,
+            history: confiremdDetails.map((detail, index) => ({
+                version: index + 1,
+                ...detail
+            }))
+        };
     }
 
     // 특정 버전 조회
-    private 
+    private getVersionDetail(details: OrderDetail[], version: number) {
+        if (version < 1 || version > details.length) {
+            throw new BadRequestException(`Version ${version} does not exist. Available version: 1-${details.length}`)
+        }
+
+        const detail = details[version-1]
+
+        return {
+            version,
+            ...detail
+        }
+    }
+
+    // 특정 시점 조회
+    private getDetailAtTimestamp(details: OrderDetail[], timestamp: string) {
+        const targetTime = this.parseTimestamp(timestamp).getTime()
+        
+        const validDetails = details.filter(d => {
+            console.log(d.createdAt.getTime())
+            console.log(targetTime)
+            return d.createdAt.getTime() <= targetTime
+        })
+
+        if (validDetails.length === 0 ) {
+            throw new NotFoundException('No order detail exists at the timestamp')
+        }
+
+        const detail = validDetails[validDetails.length - 1];
+        const version = details.indexOf(detail) + 1
+
+        return {
+            requestedTimestamp: timestamp,
+            version,
+            ...detail
+        }
+    }
+
+    // 버전 간 비교
+    private compareVersions(details: OrderDetail[], fromVersion: number, toVersion: number) {
+        if (fromVersion < 1|| fromVersion > details.length) {
+            throw new BadRequestException(`From version ${fromVersion} does not exist`)
+        }
+        if (toVersion < 1 || toVersion > details.length) {
+            throw new BadRequestException(`To version ${toVersion} does not exist`)
+        }
+
+        const from = details[fromVersion - 1];
+        const to = details[toVersion - 1];
+
+        const changes: any[] = []
+        const fields = ['productName', 'quantity', 'unitPrice', 'color', 'size', 'dueDate']
+
+        fields.forEach(field => {
+            if (from[field] !== to[field]) {
+                const verDiff = {
+                    field,
+                    from: from[field],
+                    to: to[field],
+                }
+
+                if (typeof from[field] === "number" && typeof to[field] === "number") {
+                    verDiff["difference"] = to[field] - from[field]
+                } 
+
+                changes.push(verDiff)
+            }
+        })
+
+        return {
+            fromVersion,
+            toVersion,
+            from: {
+                ...from
+            },
+            to: {
+                ...to
+            },
+            changes,
+            changedFields: changes.length
+        }
+    }
+
+    private parseTimestamp(timestamp: string): Date {
+        // Unix timestamp 체크 (숫자만 있는 경우)
+        if (/^\d+$/.test(timestamp)) {
+            const num = parseInt(timestamp);
+            // 밀리초인지 초인지 판단 (13자리면 밀리초, 10자리면 초)
+            return new Date(timestamp.length === 13 ? num : num * 1000);
+        }
+        
+        // ISO 8601 형식
+        const date = new Date(timestamp);
+        if (isNaN(date.getTime())) {
+            throw new BadRequestException('Invalid timestamp format. Use ISO 8601 or Unix timestamp');
+        }
+        
+        return date;
+    }
+
 }

@@ -4,7 +4,7 @@ POST http://localhost:3000/orders
 content-type: application/json
 
 {
-    "buyerId": "d694e14f-385b-47ec-b66c-62c9b3aca02f",
+    "buyerId": "5c7b6f00-367d-471d-bfcc-6485258f105e",
     "orderDetail": {
         "productName": "양말",
         "quantity": 1000,
@@ -15,27 +15,49 @@ content-type: application/json
     }
 }
 
-
-### Update order
-PATCH http://localhost:3000/orders/0c99f1e3-a6fb-44e5-825a-197fba57aaa6
+### Confirm Order
+POST http://localhost:3000/orders/3786ae1f-00b5-43cb-b4af-e140c651ce65/confirm
 content-type: application/json
 
 {
-    "buyerId": "d694e14f-385b-47ec-b66c-62c9b3aca02f",
+    "employeeId": "f562cf1a-e75a-4dd8-ac87-bdbddf5b09dd"
+}
+
+### Update order
+PATCH http://localhost:3000/orders/3786ae1f-00b5-43cb-b4af-e140c651ce65
+content-type: application/json
+
+{
+    "buyerId": "5c7b6f00-367d-471d-bfcc-6485258f105e",
     "orderDetail": {
-        "quantity": 15000
+        "quantity": 20000,
+        "unitPrice": 15000,
+        "color": "green"
     }
 }
 
 
-### Confirm Order
-POST http://localhost:3000/orders/0c99f1e3-a6fb-44e5-825a-197fba57aaa6/confirm
+
+
+### Reject Order 
+POST http://localhost:3000/orders/3786ae1f-00b5-43cb-b4af-e140c651ce65/reject
 content-type: application/json
 
 {
-    "employeeId": "a823569d-db7f-4fcf-80d8-aa4cc25c8c2a"
+    "employeeId": "f562cf1a-e75a-4dd8-ac87-bdbddf5b09dd	"
 }
 
 
-###
-GET http://localhost:3000/orders/0c99f1e3-a6fb-44e5-825a-197fba57aaa6
+### 일반 조회
+GET http://localhost:3000/orders/3786ae1f-00b5-43cb-b4af-e140c651ce65
+
+### 버전간 비교
+GET http://localhost:3000/orders/3786ae1f-00b5-43cb-b4af-e140c651ce65?fromVersion=1&toVersion=3
+
+### 특정 버전 조회
+GET http://localhost:3000/orders/3786ae1f-00b5-43cb-b4af-e140c651ce65?version=1
+
+### 특정 시점 조회
+GET http://localhost:3000/orders/3786ae1f-00b5-43cb-b4af-e140c651ce65?timestamp=1764409607
+
+

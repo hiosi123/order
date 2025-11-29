@@ -7,14 +7,22 @@ import { OrderDetail } from './entities/orderDetail.entity';
 import { BuyersModule } from 'src/buyers/buyers.module';
 import { OrderDetailsService } from './orderDetails.service';
 import { EmployeesModule } from 'src/employees/employees.module';
+import { AuthModule } from 'src/auth/auth.module';
+import { DepartmentGuard } from 'src/auth/guards/department.guard';
+import { RoleGuard } from 'src/auth/guards/roles.guard';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Order, OrderDetail]),
     BuyersModule,
     EmployeesModule,
+    AuthModule,
   ],
   controllers: [OrdersController],
-  providers: [OrdersService, OrderDetailsService],
+  providers: [
+    OrdersService, 
+    OrderDetailsService,
+  ],
+  exports: [OrdersService]
 })
 export class OrdersModule {}

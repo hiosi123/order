@@ -25,7 +25,10 @@ export class EmployeesService {
     }
 
     find(email: string) {
-        return this.repo.find({where: {email}})
+        return this.repo.find({
+            where: {email},
+            relations: ['department']
+        })
     }
 
     findOne(employeeId: string) {
@@ -56,5 +59,13 @@ export class EmployeesService {
         }
 
         return this.repo.remove(employee)
+    }
+
+    async findByEmailWithPassword(email: string) {
+        return this.repo.findOne({
+            where: { email },
+            relations: ['department'],
+            select: ['employeeId', 'employeeName', 'email', 'password'],
+        });
     }
 }

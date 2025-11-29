@@ -8,7 +8,8 @@ content-type: application/json
     "buyerName": "디자이너",
     "dateOfBirth": "19951108",
     "phone": "01020311883",
-    "email": "design@gmail.com"
+    "email": "design@gmail.com",
+    "password": "qwer1234@"
 }
 
 ### Get buyer with email

@@ -1,0 +1,75 @@
+### 1. Buyer 회원가입
+POST http://localhost:3000/auth/signup/buyer
+Content-Type: application/json
+
+{
+  "buyerName": "디자이너",
+  "email": "design@gmail.com",
+  "password": "password123",
+  "dateOfBirth": "19951108",
+  "phone": "01020311883"
+}
+
+### 응답
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1OTFhNWJkOC1kNjBjLTRkMmEtOTQzYS0zMjRiYzY0OGEwMzciLCJ1c2VyVHlwZSI6ImJ1eWVyIiwiZW1haWwiOiJkZXNpZ25AZ21haWwuY29tIiwiaWF0IjoxNzY0NDU1NTA4LCJleHAiOjE3NjQ0NTU1OTR9.vF8duYOSESbrRFet-4CqiGgNXFNYuxJxBqGeQ-F3aVU",
+  "user": {
+    "id": "591a5bd8-d60c-4d2a-943a-324bc648a037",
+    "name": "디자이너",
+    "email": "design@gmail.com",
+    "type": "buyer"
+  }
+}
+
+### 2. Buyer 로그인
+POST http://localhost:3000/auth/signin/buyer
+Content-Type: application/json
+
+{
+  "email": "design@gmail.com",
+  "password": "password123"
+}
+
+### 3. 주문 생성 (JWT 토큰 필요)
+POST http://localhost:3000/orders
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1OTFhNWJkOC1kNjBjLTRkMmEtOTQzYS0zMjRiYzY0OGEwMzciLCJ1c2VyVHlwZSI6ImJ1eWVyIiwiZW1haWwiOiJkZXNpZ25AZ21haWwuY29tIiwiaWF0IjoxNzY0NDU1NTA4LCJleHAiOjE3NjQ0NTU1OTR9.vF8duYOSESbrRFet-4CqiGgNXFNYuxJxBqGeQ-F3aVU
+Content-Type: application/json
+
+{
+  "orderDetail": {
+    "productName": "양말",
+    "quantity": 1000,
+    "unitPrice": 10000,
+    "color": "white",
+    "size": "xl",
+    "dueDate": "20251128"
+  }
+}
+
+### 3.5 employee 회원 가입
+POST http://localhost:3000/auth/signup/employee
+Content-Type: application/json
+
+{
+  "employeeName": "신홍석",
+  "dateOfBirth": "19951108",
+  "email": "manufact@company.com",
+  "password": "password123",
+  "departmentId": 2
+}
+
+### 4. Employee 로그인
+POST http://localhost:3000/auth/signin/employee
+Content-Type: application/json
+
+{
+  "email": "sourcing@company.com",
+  "password": "password123"
+}
+
+### 5. 주문 승인 (Sourcing 팀만)
+POST http://localhost:3000/orders/28e616ed-8bce-4d46-a0f7-5c33963b624d/confirm
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiNDFjNjRmOS00ZTg1LTQxN2MtODEzZC01ZjFmZThhMTEyODQiLCJ1c2VyVHlwZSI6ImVtcGxveWVlIiwiZW1haWwiOiJtYW51ZmFjdEBjb21wYW55LmNvbSIsImRlcGFydG1lbnRDb2RlIjoiUDEiLCJyb2xlIjpbInByb2R1Y3Rpb24iLCJtYW51ZmFjdHVyZV9vcmRlciJdLCJpYXQiOjE3NjQ0NTYyNTYsImV4cCI6MTc2NDQ1NjM0Mn0.FruG8BFYwbKiQyYKlDoyPdaDaDdhOrYRD4ne_0KdVGI
+Content-Type: application/json
+
+{}

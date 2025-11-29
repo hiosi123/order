@@ -1,24 +1,14 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsEmail, IsInt, IsString, Matches, Max, Min } from "class-validator";
+// auth/dtos/signup-employee.dto.ts
+import { ApiProperty } from '@nestjs/swagger';
+import { IsEmail, IsNumber, IsString, MinLength } from "class-validator";
 
-export class CreateEmployeeDto {
+export class SignupEmployeeDto {
     @ApiProperty({
         description: '직원 이름',
         example: '김소싱',
     })
     @IsString()
     employeeName: string;
-
-    @ApiProperty({
-        description: '생년월일 (YYYYMMDD 형식)',
-        example: '19900315',
-        pattern: '^\\d{4}(0[1-9]|1[0-2])(0[1-9]|[12]\\d|3[01])$',
-    })
-    @IsString()
-    @Matches(/^\d{4}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])$/, {
-        message: 'dateOfBirth must be in YYYYMMDD format',
-    })
-    dateOfBirth: string;
 
     @ApiProperty({
         description: '이메일',
@@ -33,13 +23,20 @@ export class CreateEmployeeDto {
         minLength: 8,
     })
     @IsString()
-    @Min(8)
+    @MinLength(8)
     password: string;
+
+    @ApiProperty({
+        description: '생년월일 (YYYYMMDD)',
+        example: '19900315',
+    })
+    @IsString()
+    dateOfBirth: string;
 
     @ApiProperty({
         description: '부서 ID',
         example: 1,
     })
-    @IsInt()
+    @IsNumber()
     departmentId: number;
 }

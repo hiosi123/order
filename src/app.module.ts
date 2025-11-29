@@ -11,6 +11,7 @@ import { Order } from './orders/entities/order.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Department } from './employees/entities/department.entity';
 import { OrderDetail } from './orders/entities/orderDetail.entity';
+import { AuthModule } from './auth/auth.module';
 
 
 @Module({
@@ -27,9 +28,11 @@ import { OrderDetail } from './orders/entities/orderDetail.entity';
           database: config.get<string>('DB_NAME'),
           synchronize: true, // true for development, false for production
           entities: [Buyer, Employee, Department, Order, OrderDetail],
+          timezone: 'Z'
         }
       }
     }),
+    AuthModule,
     BuyersModule,
     OrdersModule, 
     EmployeesModule,
