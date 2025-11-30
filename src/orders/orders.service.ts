@@ -3,12 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Order } from './entities/order.entity';
 import { Repository, DataSource } from 'typeorm';
 import { CreateOrderDto } from './dtos/create-order.dto';
-import { BuyersService } from 'src/buyers/buyers.service';
+import { BuyersService } from '../buyers/buyers.service';
 import { OrderDetailsService } from './orderDetails.service';
 import { UpdateOrderDto } from './dtos/update-order.dto';
 import { OrderDetail } from './entities/orderDetail.entity';
 import { ConfirmOrderDto } from './dtos/confirm-order.dto';
-import { EmployeesService } from 'src/employees/employees.service';
+import { EmployeesService } from '../employees/employees.service';
 
 
 // orders.service.ts

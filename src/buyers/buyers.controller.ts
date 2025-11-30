@@ -29,7 +29,7 @@ export class BuyersController {
     @ApiResponse({ status: 200, description: '조회 성공', type: [Buyer] })
     @Get()
     async findAllBuyers(
-        @Query('email') email: string,
+        @Query('email') email?: string,
     ) {
         return this.BuyersService.find(email)
     }

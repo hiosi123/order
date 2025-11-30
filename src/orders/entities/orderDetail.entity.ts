@@ -2,7 +2,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Order } from "./order.entity";
-import { Employee } from "src/employees/entities/employee.entity";
+import { Employee } from "../../employees/entities/employee.entity";
 
 @Entity()
 export class OrderDetail {

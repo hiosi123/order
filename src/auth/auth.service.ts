@@ -1,7 +1,7 @@
 import { ConflictException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { BuyersService } from "src/buyers/buyers.service";
-import { EmployeesService } from "src/employees/employees.service";
+import { BuyersService } from "../buyers/buyers.service";
+import { EmployeesService } from "../employees/employees.service";
 import { SignupBuyerDto } from "./dtos/signup-buyer.dto";
 import * as bcrypt from 'bcrypt';
 import { SignupEmployeeDto } from "./dtos/signup-employee.dto";

@@ -1,6 +1,6 @@
 // orders/entities/order.entity.ts
 import { ApiProperty } from '@nestjs/swagger';
-import { Buyer } from "src/buyers/entities/buyer.entity";
+import { Buyer } from "../../buyers/entities/buyer.entity";
 import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { OrderDetail } from "./orderDetail.entity";
 

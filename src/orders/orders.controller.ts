@@ -6,9 +6,9 @@ import { CreateOrderDto } from './dtos/create-order.dto';
 import { UpdateOrderDto } from './dtos/update-order.dto';
 import { ConfirmOrderDto } from './dtos/confirm-order.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { GetUser } from 'src/auth/decorators/get-user.decorator';
-import { DepartmentGuard } from 'src/auth/guards/department.guard';
-import { Departments } from 'src/auth/decorators/departments.decorator';
+import { GetUser } from '../auth/decorators/get-user.decorator';
+import { DepartmentGuard } from '../auth/guards/department.guard';
+import { Departments } from '../auth/decorators/departments.decorator';
 import { Order } from './entities/order.entity';
 
 @ApiTags('Orders')

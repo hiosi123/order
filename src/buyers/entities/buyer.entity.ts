@@ -1,7 +1,7 @@
 // buyers/entities/buyer.entity.ts
 import { ApiProperty, ApiHideProperty } from '@nestjs/swagger';
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { Order } from "src/orders/entities/order.entity";
+import { Order } from "../../orders/entities/order.entity";
 
 @Entity()
 export class Buyer {

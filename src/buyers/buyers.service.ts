@@ -20,7 +20,7 @@ export class BuyersService {
         return this.repo.save(buyer)
     }
 
-    find(email: string) {
+    find(email?: string) {
         return this.repo.find({where: {email}}) // return array
     }
 

@@ -1,7 +1,7 @@
 
 import {Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn} from "typeorm";
 import { Department } from "./department.entity";
-import { OrderDetail } from "src/orders/entities/orderDetail.entity";
+import { OrderDetail } from "../../orders/entities/orderDetail.entity";
 import { ApiHideProperty, ApiProperty } from "@nestjs/swagger";
 
 @Entity()
