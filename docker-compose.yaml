@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  sije:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - ./.env.development
+    ports:
+      - "3000:3000"
+    depends_on:
+      - my-database
+
+  my-database:
+    image: mysql:latest
+    environment:
+      MYSQL_DATABASE: 'sije'
+      MYSQL_USER: 'sije'
+      MYSQL_PASSWORD: 'sije1234'
+      MYSQL_ROOT_PASSWORD: 'sije1234'
+    ports:
+      - "3306:3306"

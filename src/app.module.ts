@@ -23,12 +23,18 @@ import { AuthModule } from './auth/auth.module';
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
+        // console.log(config.get('DB_HOST'), config.get('DB_PORT'),config.get('DB_USERNAME'),config.get('DB_PASSWORD'), config.get('DB_DATABASE'))
         return {
-          type: 'sqlite', 
-          database: config.get<string>('DB_NAME'),
-          synchronize: true, // true for development, false for production
+          type: 'mysql',
+          driver: require('mysql2'), // 'mysql2' 드라이버 명시적으로 사용
+          host: config.get('DB_HOST'),
+          port: config.get('DB_PORT'),
+          username: config.get('DB_USERNAME'),
+          password: config.get('DB_PASSWORD'),
+          database: config.get('DB_DATABASE'),
           entities: [Buyer, Employee, Department, Order, OrderDetail],
-          timezone: 'Z'
+          synchronize: true,
+          timezone: 'Z',
         }
       }
     }),
